@@ -1,0 +1,90 @@
+#R
+
+#Read the data into R as test_reviews.csv and sentiment_test.txt from Hive steps
+> test_reviews <- read.csv("c:/users/sdyck/documents/test_reviews.csv", header = FALSE,
+sep = ',')
+> test_sentiment <- read.table("c:/users/sdyck/documents/sentiment_test.txt", header = FALSE
+sep = "\t")
+> total_test_data <- merge(test_reviews, test_sentiment, by = "V1")
+
+#Install packages for later steps
+> install.packages("tm")
+
+#Separate review_text into pos, neg and neutral
+> neutral_review_text <- total_test_data$V2.x[total_test_data$V2.y == 0]
+> neg_review_text <- total_test_data$V2.x[total_test_data$V2.y < 0]
+> pos_review_test <- total_test_data$V2.x[total_test_data$V2.y > 0]
+
+#Create Corpora of pos, neg and neutral text
+> pos_review_text1 <- paste(pos_review_text, collapse = ' ')
+> pos_review_source <- VectorSource(pos_review_text1)
+> myCorpusPositive <- Corpus(pos_review_text1)
+> neg_review_text1 <- paste(neg_review_text, collapse = ' ')
+> neg_review_source <- VectorSource(neg_review_text1)
+> myCorpusNegative <- Corpus(neg_review_text1)
+> neutral_review_text1 <- paste(neutral_review_text, collapse = ' ')
+> neutral_review_source <- VectorSource(neutral_review_text1)
+> myCorpusNeutral <- Corpus(neuratl_review_text1)
+
+#Clean the data
+> myCorpusPositive <- tm_map(myCorpusPositive, removePunctuation)
+> myCorpusPositive <- tm_map(myCorpusPositive, stripWhitespace)
+> myCorpusPositive <- tm_map(myCorpusPositive, removeWords, myStopwords)
+> myCorpusNegative <- tm_map(myCorpusNegative, removePunctuation)
+> myCorpusNegative <- tm_map(myCorpusNegative, stripWhitespace)
+> myCorpusNegative <- tm_map(myCorpusNegative, removeWords, myStopwords)
+> myCorpusNeutral <- tm_map(myCorpusNeutral, removePunctuation)
+> myCorpusNeutral <- tm_map(myCorpusNeutral, stripWhitespace)
+> myCorpusNeutral <- tm_map(myCorpusNeutral, removeWords, myStopwords)
+
+#Create the Term Document Matrix for each corpus
+> tdm <- TermDocumentMatrix(myCorpusPositive, control = list(wordLengths = c(1, Inf)))
+> tdm2 <- TermDocumentMatrix(myCorpusNegative, control = list(wordLengths = c(1, Inf)))
+> tdm3 <- TermDocumentMatrix(myCorpusNeutral, control = list(wordLengths = c(1, Inf)))
+
+#Install wordcloud package and attach library for visualizing words in the tdm
+> install.packages("wordcloud")
+> library(wordcloud)
+
+#Creating the wordcloud visualizations of the initial test data
+> m_pos <- as.matrix(tdm)
+> word.freq.pos <- sort(rowSums(m_pos), decreasing = T)
+> wordcloud(words = names(word.freq.pos), freq = word.freq.pos, min.freq = 10, random.order =
+FALSE)
+> m_neg <- as.matrix(tdm2)
+> word.freq.neg <- sort(rowSums(m_neg), decreasing = T)
+> wordcloud(words = names(word.freq.neg), freq = word.freq.neg, min.freq = 10, random.order =
+FALSE)
+> m_neutral <- as.matrix(tdm3)
+> word.freq.neutral <- sort(rowSums(m_neutral), decreasing = T)
+> wordcloud(words = names(word.freq.neutral), freq = word.freq.neutral, min.freq = 10, random.order =
+FALSE)
+
+
+#Joining the positive_reviews_classify, neg_reviews_classify, neutral_reviews_classify
+#and test_reviews_classify subsets to use in the classification steps
+> reviews_classify = rbind(pos_reviews_classify, neg_reviews_classify, neutral_reviews_classify,
+test_reviews_classify)
+> matrix_classify = create_matrix(reviews_classify[,1], language = 'english', removeStopwords =
+TRUE, removeNumbers = TRUE)
+> mat = as.matrix(matrix_classify)
+> classifier = naiveBayes(mat[1:15,1], as.factor(reviews_classify[1:15,2))
+> predicted = predict(classifier, mat[16:20,]): predicted
+> table(reviews_classify[16:20,2], predicted)
+
+#Test recall_accuracy
+> recall_accuracy(reviews_classify[16:20,2], predicted)
+
+
+#finding frequent terms for topic analysis - these were later stored in csv files
+#for further analysis
+> (freq.terms.pos <- findFreqTerms(tdm, lowfreq = 15)
+> (freq.terms.neg <- findFreqTerms(tdm2, lowfreq = 15)
+> (freq.terms.neutral <- findFreqTerms(tdm3, lowfreq = 15)
+
+#Code for bar visualizations of frequent terms (Change names for pos and neg reviews)
+#May need to modify the min frequency to get results that are meaningful
+> wf = data.frame(term = names(freqneutral), occurrences = freqneutral)
+> p <- ggplot(subset(wf, freqneutral > 50), aes(term, occurrences))
+> p <- p + geom_bar(stat = "identity"
+

@@ -1,5 +1,5 @@
 # finalProject
-Sentiment Analysis Final Project
+<em>Sentiment Analysis Final Project</em>
 
 This repository contains project files and initial code results for my capstone project - Sentiment Analysis of TripAdvisor Reviews.
 

@@ -116,5 +116,5 @@ TRUE, removeNumbers = TRUE)
 #May need to modify the min frequency to get results that are meaningful
 > wf = data.frame(term = names(freqneutral), occurrences = freqneutral)
 > p <- ggplot(subset(wf, freqneutral > 50), aes(term, occurrences))
-> p <- p + geom_bar(stat = "identity"
+> p <- p + geom_bar(stat = "identity")
 

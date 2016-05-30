@@ -60,6 +60,36 @@ FALSE)
 > wordcloud(words = names(word.freq.neutral), freq = word.freq.neutral, min.freq = 10, random.order =
 FALSE)
 
+#Creating the Initial Reviews for testing
+pos_reviews_classify = rbind(c('We spent 13 nights here at the Hotel Colon in one of their top rooms Double room with terrace 
+overlooking the Cathedral which was on the top floor of the hotel accessible by two lifts and or stairs. The hotel which was 
+used in the film Food of Love is very well located in the heart of the Gothic Quarter and so in walking distance from many of 
+the most famous and popular tourist attractions. Free Wi-fi is also available to hotel guests. Check in and check out were 
+very smooth. The terrace in our room was the real selling point with lovely plants. You could see the sunrise every morning. 
+It was lovely', 'positive'), c('I just came back from Barcelona. I stayed at the Hotel Colon in the Gothic quater. 
+Lovely hotel great location. Barcelona is a fun and friendly city.', 'positive'), c('We spent a week here last month 
+and were very pleased with our stay.', 'positive'), c('The hotel is very nice and in a fantastic location', 'positive'), 
+c('The hotel was renovated about a year or two ago and it is very elegant opulent and beautiful.', 'positive'))
+
+neg_reviews_classify = rbind(c('The Hotel de Filosoof and I got off to a bad start weeks before I arrived.', 'negative'), 
+c('I have mixed feelings for this hotel. I guess part of the problem is that the W brand caters to a certain clientele', 'negative'), 
+c('We were in Amsterdam for 10 days in Hotel Filosoof for 4 days. It was awful.', 'negative'), c('The next day we went sight seeing 
+and when we returned to our room the card key would not work', 'negative'), c('after being in our room for two hours we could not 
+stand the smell', 'negative'))
+
+neutral_reviews_classify = rbind(c('The staff is very friendly and efficient. The rooms sometimes are ok but some need a 
+refurbishment', 'neutral'), c('We checked in around 3:45 excited to be in our room but it was not ready when we arrived. 
+We were greeted with champagne to toast our day though', 'neutral'), c('Pros lovely hotel at a reasonable rate. 
+Cons I asked for a room on a high floor away from the lift and noise of metro. Unfortunately none of these requests 
+were adhered', 'neutral'), c('although the location is quite good tv platform was there but no TV', 'neutral'), 
+c('The location is reasonable but I could not get a good night sleep', 'neutral'))
+
+test_reviews_classify = rbind(c('I Had the pleasure to stay there on a short business trip and did enjoy Trendy place with 
+a lovely team', 'postive'), c('Either I was very unlucky or the Intercontinental has it all wrong.', 'negative'), 
+c('The noise began at early in the morning we believe it was either the subway or the elevators', 'negative'), 
+c('this hotel is one of their best. The bar though was a bit crap', 'neutral'), 
+c('only one person checking people in and there was a line. Another finally showed up. Got to room and it was fine.', 'neutral'))
+
 
 #Joining the positive_reviews_classify, neg_reviews_classify, neutral_reviews_classify
 #and test_reviews_classify subsets to use in the classification steps

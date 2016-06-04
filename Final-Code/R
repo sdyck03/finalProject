@@ -1,1 +1,113 @@
+# Annotated R code steps
+
+# Loading Required Packages
+
+> install.packages(jsonlite)
+> install.packages(e1071)
+> library(jsonlite)
+> library(RCurl)
+> library(stringr)
+> library(tm)
+> library(ggmap)
+> library(dplyr)
+> library(wordcloud)
+> library(e1071)
+
+
+# Loading the data for 8 unique hotels
+> hotelData1 <- fromJSON(readLines("c:/users/pathToData/data/190157.json"), flatten = TRUE)$Reviews
+> hotelData2 <- fromJSON(readLines("c:/users/pathToData/data/190159.json"), flatten = TRUE)$Reviews
+> hotelData3 <- fromJSON(readLines("c:/users/pathToData/data/609385.json"), flatten = TRUE)$Reviews
+> hotelData4 <- fromJSON(readLines("c:/users/pathToData/data/526662.json"), flatten = TRUE)$Reviews
+> hotelData5 <- fromJSON(readLines("c:/users/pathToData/data/489097.json"), flatten = TRUE)$Reviews
+> hotelData6 <- fromJSON(readLines("c:/users/pathToData/data/489096.json"), flatten = TRUE)$Reviews
+> hotelData7 <- fromJSON(readLines("c:/users/pathToData/data/489077.json"), flatten = TRUE)$Reviews
+> hotelData8 <- fromJSON(readLines("c:/users/pathToData/data/190569.json"), flatten = TRUE)$Reviews
+
+# Combine the reviews into one data frame
+> totaldata = rbind(hotelData1, hotelData2, hotelData3, hotelData4, hotelData5, hotelData6, hotelData7, hotelData8)
+
+# Add Overall Rating as numRatings to the totaldata object
+> totaldata$numRatings <- as.numeric(totaldata$Ratings.Overall)
+
+# Add a column for Sentiment based on the numRatings to the totaldata object
+> totaldata$sentiment <- ifelse(totaldata$numRatings > 3, "positive", ifelse(totaldata$numRatings == 3, "neutral", "negative"))
+
+# Create text Corpus of totaldata$content which contains the review text for all 1580 reviews
+> corpusReviews <- Corpus(VectorSource(totaldata$content))
+
+# Data cleaning steps
+> corpusReviews <- tm_map(corpusReviews, tolower)
+> corpusReviews <- tm_map(corpusReviews, function(x) removeWords(x, stopWords("english")))
+> corpusReviews <- tm_map(corpusReviews, PlainTextDocument)
+
+# Repeated a few cleaning steps to remove some commonly used words in the reviews that were not immediately useful
+> corpusReviews <- tm_map(corpusReviews, function(x) removeWords(x, c("hotel", "room", "stayed", "one", "get", "got", "well", "two")))
+> corpusReviews <- tm_map(corpusReviews, PlainTextDocument)
+
+# Code for wordclouds for overall corpus and also for posCorpus and negCorpus
+# posCorpus and negCorpus were created using the same steps as above but created from all totaldata$numRatings > 3 or < 3 respectively
+> wordcloud(corpusReviews, min.freq = 10, scale(5,2), rot.per = 0.25, random.color = T, max.word = 45, random.order = F, colors = col)
+# The above step was repeated using the other corpora and the results of which are included in the Final Project Report
+# Also missing here is the code line to generate the list of colours used
+
+# Code for additional visualizations
+# The distribution of numRating across the entire dataset
+> hist(totaldata$numRatings, xlab = ' ', main = Sentiment Score in Review Text Corpus", border = "black", col = "skyblue")
+
+# The bar plot of sentiment groupings
+# Had to use !is.na as some Overall Ratings were not filled in by the users and I did not add a value in place of those missing data
+# points.
+> qplot(x = sentiment, data = subset(totaldata, !is.na(sentiment)))
+
+# sentiment score function
+> score.sentiment = function(sentences, positive_words, negative_words){
+> scores = laply(sentences, function(sentence, pos.words, neg.words){
+> sentence = gsub("[[:punct:]]", "", sentence)
+> sentence = gsub("[[:cntrl:]]", "", sentence)
+> sentence = tolower(sentence)
+> word.list = str_split(sentence, " ")
+> words = unlist(word.list)
+> pos.matches = match(words, pos.words)
+> neg.matches = match(words, neg.words)
+> pos.matches = !is.na(pos.matches)
+> neg.matches = !is.na(neg.matches)
+> score = sum(pos.matches) - sum(neg.matches)
+> return(score)
+> }, pos.words, neg.words)
+> scores.df = data.frame(score = scores, text = sentences)
+> return(scores.df)
+> }
+
+# Loading positives and negatives which include known sentiment words that are used for matching in the above function
+> positives = read.table("c:/users/pathToData/data/positive-words.txt")
+> negatives = read.table("c:/users/pathToData/data/negative-words.txt")
+
+# Processing posText and negText and joining to run through the sentiment score function
+> posText <- subset(totaldata, totaldata$numRatings > 3)
+> negText <- subset(totaldata, totaldata$numRatings < 3)
+> posResult <- as.data.frame(score.sentiment(posText$content, positives, negatives))
+> negResult <- as.data.frame(score.sentiment(negText$content, positives, negatives))
+> posResult <- cbind(posResult, 'positive')
+> colnames(posResult) <- c('sentence', 'neg', 'pos', 'sentiment')
+> negResult <- cbind(negResult, 'negative')
+> colnames(negResult) <- c('sentence, 'neg', 'pos', 'sentiment')
+# results is used in the next classifier steps
+> results <- rbind(posResult, negResult)
+
+# Naive Bayes classifier, this step was repeated a few times and the results were included in the final project doc
+> classifier <- naiveBayes(results[,1:5], results[,6])
+> confTable <- table(predict(classifier, results), results[,6], dnn = list('predicted', 'actual'))
+> confTable
+
+
+
+
+
+
+
+
+
+
+
 

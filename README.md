@@ -5,4 +5,4 @@ This repository contains project files and initial code results for my capstone 
 
 <b>Project Docs</b> - Abstract and Final Project Report. <br>
 <b>Final Code</b> - R Analysis code. <br>
-<b>Test Data</b> - Contains the subset of data used and the scored sentiment word list
+<b>Archive</b> - Contains code used from initial iteration of the project. <br>
